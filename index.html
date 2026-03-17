@@ -357,7 +357,7 @@ td { border: 1px solid #b0d0b8; vertical-align: middle; overflow: hidden; }
 </div>
 
 <div class="print-bar">
-  <button class="action-btn btn-save-web" onclick="saveRecord()">
+  <button class="action-btn btn-save-web" id="btn-save" onclick="saveRecord()">
     <svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></svg>웹에 저장
   </button>
   <button class="action-btn btn-print" onclick="window.print()">
@@ -598,8 +598,7 @@ window.saveRecord = async function() {
   const name = (d['f-name']||'').trim() || '이름없음';
   const key  = `${date}_${name}`;
   const btn  = document.getElementById('btn-save');
-  btn.disabled = true;
-  btn.textContent = '저장 중...';
+  if (btn) { btn.disabled = true; btn.textContent = '저장 중...'; }
   try {
     await setDoc(doc(db, COL, key), d);
     curKey = key;
@@ -612,8 +611,10 @@ window.saveRecord = async function() {
     toast('❌ 저장 실패. 인터넷 연결을 확인해주세요.', '#c83030');
     console.error(e);
   }
-  btn.disabled = false;
-  btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#fff"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></svg>웹에 저장`;
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#fff"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></svg>웹에 저장`;
+  }
 };
 
 window.deleteRecord = async function() {
