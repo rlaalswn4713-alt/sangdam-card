@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인회생 / 파산 상담카드</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #d4e8d8;
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 20px 52px;
+}
+
+/* ── 툴바 ── */
+.toolbar {
+  width: 860px; display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px; background: #fff;
+  border: 2px solid #2a6a3a; border-radius: 6px;
+  padding: 10px 16px; box-shadow: 0 2px 12px rgba(20,80,40,0.10);
+  flex-wrap: wrap; position: relative; z-index: 100;
+}
+.toolbar-title { font-size: 0.82rem; font-weight: 700; color: #1a4a28; white-space: nowrap; }
+
+/* 검색 자동완성 */
+.search-wrap { flex: 1; min-width: 200px; position: relative; }
+.search-wrap input {
+  width: 100%; border: 1.5px solid #b0d0b8; border-radius: 4px;
+  padding: 6px 30px 6px 10px;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 0.82rem;
+  color: #1a4a28; background: #f6fbf7; outline: none;
+}
+.search-wrap input:focus { border-color: #2a6a3a; }
+.search-icon {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  font-size: 0.82rem; pointer-events: none; color: #5a9a6a;
+}
+.search-clear {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  font-size: 0.9rem; cursor: pointer; color: #999;
+  display: none; line-height: 1; user-select: none;
+}
+.search-clear:hover { color: #c83030; }
+.dropdown-list {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid #2a6a3a; border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(20,80,40,0.15);
+  max-height: 230px; overflow-y: auto; z-index: 999; display: none;
+}
+.drop-item {
+  padding: 8px 12px; font-size: 0.8rem; color: #1a4a28;
+  cursor: pointer; border-bottom: 1px solid #e0ede4; transition: background 0.1s;
+}
+.drop-item:last-child { border-bottom: none; }
+.drop-item:hover, .drop-item.hi { background: #eaf4ec; }
+.drop-date { font-weight: 700; color: #2a6a3a; margin-right: 8px; }
+.drop-name { color: #444; }
+.drop-empty { padding: 10px 12px; font-size: 0.78rem; color: #999; text-align: center; }
+
+.tb-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border: none; border-radius: 4px;
+  font-family: 'Noto Sans KR', sans-serif; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; white-space: nowrap; transition: background 0.15s, transform 0.1s;
+}
+.tb-btn:active { transform: translateY(1px); }
+.tb-btn svg { width: 15px; height: 15px; }
+.btn-new  { background: #2a6a3a; color: #fff; }
+.btn-new:hover  { background: #1a4a28; }
+.btn-del  { background: #c83030; color: #fff; }
+.btn-del:hover  { background: #a02020; }
+.btn-export { background: #7a5ab8; color: #fff; }
+.btn-export:hover { background: #5a3a98; }
+.btn-import { background: #b87a20; color: #fff; }
+.btn-import:hover { background: #8a5a10; }
+.tb-divider { width: 1px; height: 28px; background: #b0d0b8; margin: 0 2px; }
+
+/* ── 카드 ── */
+.page { width: 860px; }
+.card {
+  background: #fff; border: 2px solid #2a6a3a; border-bottom: none;
+  border-radius: 6px 6px 0 0; overflow: hidden;
+  box-shadow: 0 4px 24px rgba(20,80,40,0.13);
+}
+.card-title {
+  background: #2a6a3a; color: #fff; text-align: center;
+  padding: 10px 0; font-size: 1.15rem; font-weight: 700; letter-spacing: 0.15em;
+  display: flex; align-items: center; justify-content: center; gap: 0;
+}
+.title-text { font-size: 1.05rem; font-weight: 700; letter-spacing: 0.1em; margin: 0 14px; white-space: nowrap; }
+.type-btn {
+  padding: 5px 22px; border: 2px solid rgba(255,255,255,0.5); border-radius: 20px;
+  background: transparent; color: rgba(255,255,255,0.65);
+  font-family: 'Noto Sans KR', sans-serif; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: all 0.18s; letter-spacing: 0.08em; white-space: nowrap;
+}
+.type-btn.selected {
+  background: #fff; color: #2a6a3a; border-color: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.type-btn:hover:not(.selected) { background: rgba(255,255,255,0.15); color: #fff; border-color: #fff; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+td { border: 1px solid #b0d0b8; vertical-align: middle; overflow: hidden; }
+
+.sec {
+  background: #2a6a3a; color: #fff; text-align: center;
+  width: 26px; padding: 4px 0; font-weight: 700; font-size: 0.7rem;
+}
+.sec span { display: inline-block; writing-mode: vertical-rl; text-orientation: upright; letter-spacing: 0.12em; }
+.lbl { background: #eaf4ec; color: #1a4a28; font-weight: 700; font-size: 0.74rem; text-align: center; padding: 5px 3px; line-height: 1.4; }
+.inp { background: #f6fbf7; padding: 0 7px; height: 30px; }
+.inp input { display: block; width: 100%; height: 100%; border: none; background: transparent; outline: none; font-family: 'Noto Sans KR', sans-serif; font-size: 0.82rem; font-weight: 600; color: #0d3399; }
+.inl { background: #f6fbf7; padding: 3px 7px; height: 30px; }
+.inl .row { display: flex; align-items: center; flex-wrap: nowrap; gap: 6px; height: 100%; }
+.inl label { display: flex; align-items: center; gap: 3px; font-size: 0.75rem; color: #1a4a28; cursor: pointer; white-space: nowrap; }
+.inl input[type="radio"] { accent-color: #0d3399; cursor: pointer; }
+.inl .u { font-size: 0.72rem; color: #2a5a38; white-space: nowrap; }
+.inl .si { border: none; border-bottom: 1.5px solid #0d3399; background: transparent; outline: none; font-family: 'Noto Sans KR', sans-serif; font-size: 0.78rem; font-weight: 600; color: #0d3399; padding: 0 2px 1px; min-width: 0; flex-shrink: 1; }
+.rdo { background: #f6fbf7; padding: 5px 8px; }
+.rdo .col { display: flex; flex-direction: column; gap: 4px; }
+.rdo label { display: flex; align-items: center; gap: 4px; font-size: 0.75rem; color: #1a4a28; cursor: pointer; white-space: nowrap; }
+.rdo input[type="radio"] { accent-color: #0d3399; }
+.area { background: #f6fbf7; padding: 5px 7px; vertical-align: top; }
+.area textarea { display: block; width: 100%; border: none; background: transparent; outline: none; font-family: 'Noto Sans KR', sans-serif; font-size: 0.82rem; font-weight: 600; color: #0d3399; resize: none; line-height: 1.6; }
+.fee-lbl { background: #fff0f0; color: #cc1111; font-weight: 800; font-size: 0.8rem; text-align: center; padding: 5px 3px; }
+.fee-inp { background: #fff8f8; padding: 5px 7px; vertical-align: top; }
+.fee-inp textarea { display: block; width: 100%; border: none; background: transparent; outline: none; font-family: 'Noto Sans KR', sans-serif; font-size: 0.82rem; font-weight: 700; color: #cc1111; resize: none; line-height: 1.6; }
+
+/* ── 하단 버튼 ── */
+.print-bar {
+  width: 860px; background: #eaf4ec; border: 2px solid #2a6a3a;
+  border-top: 1px solid #b0d0b8; border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 24px rgba(20,80,40,0.10);
+  display: flex; justify-content: center; align-items: center; gap: 12px; padding: 14px 0;
+}
+.action-btn {
+  display: inline-flex; align-items: center; gap: 7px; padding: 10px 28px;
+  border: none; border-radius: 4px; font-family: 'Noto Sans KR', sans-serif;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer; letter-spacing: 0.06em;
+  transition: background 0.18s, transform 0.1s;
+}
+.action-btn:hover { transform: translateY(-1px); }
+.action-btn:active { transform: translateY(0); }
+.action-btn svg { width: 16px; height: 16px; fill: #fff; }
+.action-btn:disabled { background: #aaa !important; cursor: not-allowed; transform: none; }
+.btn-save-web { background: #2a6a3a; color: #fff; box-shadow: 0 2px 8px rgba(20,80,40,0.22); }
+.btn-save-web:hover { background: #1a4a28; }
+.btn-print { background: #4a7ab8; color: #fff; box-shadow: 0 2px 8px rgba(40,60,140,0.18); }
+.btn-print:hover { background: #3a5a98; }
+.btn-pdf { background: #c83300; color: #fff; box-shadow: 0 2px 8px rgba(160,40,0,0.20); }
+.btn-pdf:hover { background: #a02200; }
+
+/* ── 토스트 ── */
+.toast {
+  position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #1a4a28; color: #fff; padding: 11px 28px; border-radius: 24px;
+  font-size: 0.85rem; font-weight: 600; opacity: 0;
+  transition: opacity 0.3s, transform 0.3s; pointer-events: none; z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  body { background: #fff; padding: 0; }
+  .toolbar, .print-bar, .toast { display: none !important; }
+  .page { width: 100%; }
+  .card { border: 1.5px solid #2a6a3a; border-bottom: 1.5px solid #2a6a3a; border-radius: 0; box-shadow: none; }
+  .card-title { background: #2a6a3a !important; color: #fff !important; }
+  .type-btn { border-color: rgba(255,255,255,0.5) !important; color: rgba(255,255,255,0.5) !important; }
+  .type-btn.selected { background: #fff !important; color: #2a6a3a !important; border-color: #fff !important; }
+  .sec { background: #2a6a3a !important; color: #fff !important; }
+  .lbl { background: #eaf4ec !important; color: #1a4a28 !important; }
+  .inp { background: #f6fbf7 !important; }
+  .inp input { color: #0d3399 !important; }
+  .inl { background: #f6fbf7 !important; }
+  .inl .si { color: #0d3399 !important; border-bottom-color: #0d3399 !important; }
+  .inl .u { color: #2a5a38 !important; }
+  .inl label { color: #1a4a28 !important; }
+  .rdo { background: #f6fbf7 !important; }
+  .rdo label { color: #1a4a28 !important; }
+  .area { background: #f6fbf7 !important; }
+  .area textarea { color: #0d3399 !important; }
+  .fee-lbl { background: #fff0f0 !important; color: #cc1111 !important; }
+  .fee-inp { background: #fff8f8 !important; }
+  .fee-inp textarea { color: #cc1111 !important; }
+  td { border-color: #b0d0b8 !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 툴바 -->
+<div class="toolbar">
+  <span class="toolbar-title">📂 저장된 상담카드</span>
+  <div class="search-wrap" id="search-wrap">
+    <input type="text" id="search-input" placeholder="날짜 또는 이름으로 검색..."
+      autocomplete="off"
+      onfocus="openDrop()"
+      oninput="onInput()"
+      onkeydown="onKey(event)">
+    <span class="search-icon" id="s-icon">🔍</span>
+    <span class="search-clear" id="s-clear" onclick="clearSearch()">✕</span>
+    <div class="dropdown-list" id="drop-list"></div>
+  </div>
+  <button class="tb-btn btn-new" onclick="newCard()">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>새 카드
+  </button>
+  <button class="tb-btn btn-del" onclick="deleteRecord()">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm2.46-7.12l1.41-1.41L12 12.59l2.12-2.12 1.41 1.41L13.41 14l2.12 2.12-1.41 1.41L12 15.41l-2.12 2.12-1.41-1.41L10.59 14l-2.13-2.12zM15.5 4l-1-1h-5l-1 1H5v2h14V4z"/></svg>삭제
+  </button>
+  <div class="tb-divider"></div>
+  <button class="tb-btn btn-export" onclick="exportData()">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M19 9h-4V3H9v6H5l7 7 7-7zm-8 2V5h2v6h1.17L12 13.17 9.83 11H11zm-6 7h14v2H5z"/></svg>내보내기
+  </button>
+  <button class="tb-btn btn-import" onclick="document.getElementById('import-file').click()">
+    <svg viewBox="0 0 24 24" fill="#fff"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5z"/></svg>가져오기
+  </button>
+  <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+
+<!-- 카드 -->
+<div class="page">
+<div class="card">
+  <div class="card-title">
+    <button class="type-btn selected" id="btn-recovery" onclick="selectType('recovery')">개인회생</button>
+    <span class="title-text">상담카드</span>
+    <button class="type-btn" id="btn-bankruptcy" onclick="selectType('bankruptcy')">파산</button>
+  </div>
+  <table>
+    <colgroup>
+      <col style="width:26px"><col style="width:76px"><col>
+      <col style="width:76px"><col><col style="width:76px"><col>
+    </colgroup>
+
+    <tr>
+      <td class="lbl" colspan="2">담 당 자</td>
+      <td class="inp" colspan="2"><input type="text" id="f-manager" value="김민주 부장"></td>
+      <td class="lbl">날 짜</td>
+      <td class="inp" colspan="2"><input type="date" id="f-date" style="width:100%;height:100%;border:none;background:transparent;outline:none;font-family:'Noto Sans KR',sans-serif;font-size:0.82rem;font-weight:600;color:#0d3399;cursor:pointer;"></td>
+    </tr>
+
+    <tr>
+      <td class="sec" rowspan="5"><span>인적사항</span></td>
+      <td class="lbl">성 명</td>
+      <td class="inp"><input type="text" id="f-name"></td>
+      <td class="lbl">나 이</td>
+      <td class="inp"><input type="text" id="f-age" placeholder="만 00세"></td>
+      <td class="lbl">연 락 처</td>
+      <td class="inp"><input type="text" id="f-tel" placeholder="010-0000-0000"></td>
+    </tr>
+    <tr>
+      <td class="lbl">동본 상주소</td>
+      <td class="inp" colspan="5"><input type="text" id="f-addr1"></td>
+    </tr>
+    <tr>
+      <td class="lbl">실 거주지</td>
+      <td class="inp" colspan="5"><input type="text" id="f-addr2"></td>
+    </tr>
+    <tr>
+      <td class="lbl" rowspan="2">직 업</td>
+      <td class="rdo" rowspan="2">
+        <div class="col">
+          <label><input type="radio" name="job" value="직장인"> 직장인</label>
+          <label><input type="radio" name="job" value="사업자"> 사업자</label>
+          <label><input type="radio" name="job" value="무직"> 무직</label>
+        </div>
+      </td>
+      <td class="lbl">4대 보험</td>
+      <td class="inl" colspan="3">
+        <div class="row">
+          <label><input type="radio" name="ins" value="해당"> 해당</label>
+          <label><input type="radio" name="ins" value="미해당"> 미해당</label>
+          <span class="u">월 급여</span>
+          <input class="si" type="text" id="f-salary" style="width:80px">
+          <span class="u">원</span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl">사 업 자</td>
+      <td class="inl" colspan="3">
+        <div class="row">
+          <span class="u">업종</span>
+          <input class="si" type="text" id="f-biztype" style="width:80px">
+          <span class="u">월 수입</span>
+          <input class="si" type="text" id="f-bizincome" style="width:70px">
+          <span class="u">원</span>
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td class="sec" rowspan="3"><span>채무</span></td>
+      <td class="lbl">채무금 총액</td>
+      <td class="inp" colspan="5"><input type="text" id="f-debt-total"></td>
+    </tr>
+    <tr>
+      <td class="lbl">3개월이내<br>대출</td>
+      <td class="inl" colspan="2">
+        <div class="row"><span class="u">건수</span><input class="si" type="text" id="f-loan-cnt" style="width:50px"></div>
+      </td>
+      <td class="lbl">금액/사용처</td>
+      <td class="inl" colspan="2">
+        <div class="row"><input class="si" type="text" id="f-loan-amt" style="width:100px"><span class="u">원</span></div>
+      </td>
+    </tr>
+    <tr>
+      <td class="lbl" style="vertical-align:top;padding-top:8px;">채 권 사</td>
+      <td class="area" colspan="5" style="height:90px;"><textarea id="f-creditor" style="height:80px;"></textarea></td>
+    </tr>
+
+    <tr>
+      <td class="sec" rowspan="2"><span>재산</span></td>
+      <td class="lbl" colspan="3" style="text-align:center;">본 인</td>
+      <td class="lbl" colspan="3" style="text-align:center;">배 우 자</td>
+    </tr>
+    <tr>
+      <td class="area" colspan="3" style="height:76px;"><textarea id="f-asset-self" style="height:66px;"></textarea></td>
+      <td class="area" colspan="3" style="height:76px;"><textarea id="f-asset-spouse" style="height:66px;"></textarea></td>
+    </tr>
+
+    <tr>
+      <td class="sec" rowspan="3"><span>가족</span></td>
+      <td class="lbl" rowspan="2">결혼 여부</td>
+      <td class="inp" rowspan="2"><input type="text" id="f-married"></td>
+      <td class="lbl">부양가족수</td>
+      <td class="inp"><input type="text" id="f-dependents"></td>
+      <td class="lbl">18세미만<br>자녀</td>
+      <td class="inl"><div class="row"><input class="si" type="text" id="f-children" style="width:40px"><span class="u">명</span></div></td>
+    </tr>
+    <tr>
+      <td class="lbl">배우자 소득</td>
+      <td class="inp" colspan="3"><input type="text" id="f-spouse-income"></td>
+    </tr>
+    <tr>
+      <td class="lbl">배우자의 재산</td>
+      <td class="inp" colspan="5"><input type="text" id="f-spouse-asset"></td>
+    </tr>
+
+    <tr>
+      <td class="sec"><span>특이사항</span></td>
+      <td class="area" colspan="6" style="height:108px;"><textarea id="f-special" style="height:98px;"></textarea></td>
+    </tr>
+    <tr>
+      <td class="sec"><span>상담내용</span></td>
+      <td class="area" colspan="6" style="height:138px;"><textarea id="f-consult" style="height:128px;"></textarea></td>
+    </tr>
+    <tr>
+      <td class="fee-lbl" colspan="2">수 임 료</td>
+      <td class="fee-inp" colspan="5" style="height:50px;"><textarea id="f-fee" style="height:40px;"></textarea></td>
+    </tr>
+  </table>
+</div>
+
+<div class="print-bar">
+  <button class="action-btn btn-save-web" onclick="saveRecord()">
+    <svg viewBox="0 0 24 24"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></svg>웹에 저장
+  </button>
+  <button class="action-btn btn-print" onclick="window.print()">
+    <svg viewBox="0 0 24 24"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>인쇄하기
+  </button>
+  <button class="action-btn btn-pdf" id="btn-pdf" onclick="savePdf()">
+    <svg viewBox="0 0 24 24"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>PDF 저장
+  </button>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script type="module">
+import { initializeApp }                            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, doc, setDoc,
+         getDocs, deleteDoc, query, orderBy }       from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+// ── Firebase 초기화 ──
+const firebaseConfig = {
+  apiKey: "AIzaSyBXWF4ficmp23mPvOPCZtq_AGIuCRGyVb4",
+  authDomain: "b-h-law-firm.firebaseapp.com",
+  projectId: "b-h-law-firm",
+  storageBucket: "b-h-law-firm.firebasestorage.app",
+  messagingSenderId: "400459019998",
+  appId: "1:400459019998:web:c294267a329fa4d496744f",
+  measurementId: "G-F4B7V72N1S"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getFirestore(app);
+const COL = 'sangdam'; // Firestore 컬렉션명
+
+// ═══════════════════════════════════════════
+//  상수 & 상태
+// ═══════════════════════════════════════════
+const FIELDS = [
+  'f-manager','f-date','f-name','f-age','f-tel',
+  'f-addr1','f-addr2','f-salary','f-biztype','f-bizincome',
+  'f-debt-total','f-loan-cnt','f-loan-amt','f-creditor',
+  'f-asset-self','f-asset-spouse','f-married','f-dependents',
+  'f-children','f-spouse-income','f-spouse-asset',
+  'f-special','f-consult','f-fee'
+];
+const RADIOS = ['job','ins'];
+
+let curKey   = '';
+let hiIdx    = -1;
+let allKeys  = []; // { key, date, name } 목록
+
+// ═══════════════════════════════════════════
+//  초기화
+// ═══════════════════════════════════════════
+(function init() {
+  const t = new Date();
+  document.getElementById('f-date').value =
+    `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  document.addEventListener('mousedown', e => {
+    if (!document.getElementById('search-wrap').contains(e.target)) closeDrop();
+  });
+  loadAllKeys();
+})();
+
+// ═══════════════════════════════════════════
+//  Firestore - 전체 키 로드
+// ═══════════════════════════════════════════
+async function loadAllKeys() {
+  try {
+    const snap = await getDocs(collection(db, COL));
+    allKeys = [];
+    snap.forEach(d => {
+      const data = d.data();
+      allKeys.push({ key: d.id, date: data['f-date']||'', name: data['f-name']||'' });
+    });
+    allKeys.sort((a,b) => b.date.localeCompare(a.date)); // 최신순
+  } catch(e) {
+    console.error('키 로드 실패', e);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  회생 / 파산 선택
+// ═══════════════════════════════════════════
+let cardType = 'recovery';
+
+window.selectType = function(type) {
+  cardType = type;
+  document.getElementById('btn-recovery').classList.toggle('selected', type === 'recovery');
+  document.getElementById('btn-bankruptcy').classList.toggle('selected', type === 'bankruptcy');
+};
+
+// ═══════════════════════════════════════════
+//  폼 수집 / 적용
+// ═══════════════════════════════════════════
+function collect() {
+  const d = {};
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) d[id] = el.value;
+  });
+  RADIOS.forEach(name => {
+    const r = document.querySelector(`input[name="${name}"]:checked`);
+    d['r_'+name] = r ? r.value : '';
+  });
+  d['cardType'] = cardType;
+  return d;
+}
+
+function applyData(d) {
+  FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && d[id] !== undefined) el.value = d[id];
+  });
+  RADIOS.forEach(name => {
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.checked = false);
+    if (d['r_'+name]) {
+      const r = document.querySelector(`input[name="${name}"][value="${d['r_'+name]}"]`);
+      if (r) r.checked = true;
+    }
+  });
+  if (d['cardType']) window.selectType(d['cardType']);
+}
+
+// ═══════════════════════════════════════════
+//  토스트
+// ═══════════════════════════════════════════
+function toast(msg, color) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.background = color || '#1a4a28';
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ═══════════════════════════════════════════
+//  드롭다운
+// ═══════════════════════════════════════════
+function getFiltered(q) {
+  if (!q) return allKeys;
+  const lq = q.toLowerCase();
+  return allKeys.filter(r => r.date.includes(lq) || r.name.toLowerCase().includes(lq));
+}
+
+function renderDrop(q) {
+  const list  = document.getElementById('drop-list');
+  const items = getFiltered(q);
+  hiIdx = -1;
+  list.innerHTML = '';
+  if (!items.length) {
+    list.innerHTML = `<div class="drop-empty">${q ? '검색 결과가 없습니다.' : '저장된 기록이 없습니다.'}</div>`;
+    return;
+  }
+  items.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'drop-item' + (r.key === curKey ? ' hi' : '');
+    div.innerHTML = `<span class="drop-date">${r.date}</span><span class="drop-name">${r.name}</span>`;
+    div.addEventListener('mousedown', e => { e.preventDefault(); pickAndLoad(r.key); });
+    list.appendChild(div);
+  });
+}
+
+window.openDrop = function() {
+  renderDrop(document.getElementById('search-input').value);
+  document.getElementById('drop-list').style.display = 'block';
+};
+
+function closeDrop() {
+  document.getElementById('drop-list').style.display = 'none';
+  hiIdx = -1;
+}
+
+window.onInput = function() {
+  const val = document.getElementById('search-input').value;
+  document.getElementById('s-clear').style.display = val ? 'block' : 'none';
+  document.getElementById('s-icon').style.display  = val ? 'none'  : 'block';
+  if (!val) curKey = '';
+  renderDrop(val);
+  document.getElementById('drop-list').style.display = 'block';
+};
+
+window.onKey = function(e) {
+  const list  = document.getElementById('drop-list');
+  const items = list.querySelectorAll('.drop-item');
+  if (!items.length) return;
+  const filtered = getFiltered(document.getElementById('search-input').value);
+  if (e.key === 'ArrowDown') {
+    hiIdx = Math.min(hiIdx+1, items.length-1);
+    items.forEach((el,i) => el.classList.toggle('hi', i===hiIdx));
+    e.preventDefault();
+  } else if (e.key === 'ArrowUp') {
+    hiIdx = Math.max(hiIdx-1, 0);
+    items.forEach((el,i) => el.classList.toggle('hi', i===hiIdx));
+    e.preventDefault();
+  } else if (e.key === 'Enter') {
+    if (hiIdx >= 0 && filtered[hiIdx]) pickAndLoad(filtered[hiIdx].key);
+    e.preventDefault();
+  } else if (e.key === 'Escape') {
+    closeDrop();
+  }
+};
+
+// ── 항목 선택 → 즉시 불러오기 ──
+async function pickAndLoad(key) {
+  const rec = allKeys.find(r => r.key === key);
+  if (!rec) return;
+  curKey = key;
+  document.getElementById('search-input').value = `${rec.date}  |  ${rec.name}`;
+  document.getElementById('s-clear').style.display = 'block';
+  document.getElementById('s-icon').style.display  = 'none';
+  closeDrop();
+  try {
+    const { getDoc } = await import("https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js");
+    const snap = await getDoc(doc(db, COL, key));
+    if (snap.exists()) {
+      applyData(snap.data());
+      toast(`📋 불러오기 완료 — ${rec.date} / ${rec.name}`);
+    }
+  } catch(e) {
+    toast('❌ 불러오기 실패', '#c83030');
+  }
+}
+
+window.clearSearch = function() {
+  curKey = '';
+  document.getElementById('search-input').value = '';
+  document.getElementById('s-clear').style.display = 'none';
+  document.getElementById('s-icon').style.display  = 'block';
+  document.getElementById('search-input').focus();
+  window.openDrop();
+};
+
+// ═══════════════════════════════════════════
+//  저장 / 삭제 / 새 카드
+// ═══════════════════════════════════════════
+window.saveRecord = async function() {
+  const d    = collect();
+  const date = d['f-date'] || '날짜없음';
+  const name = (d['f-name']||'').trim() || '이름없음';
+  const key  = `${date}_${name}`;
+  const btn  = document.getElementById('btn-save');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  try {
+    await setDoc(doc(db, COL, key), d);
+    curKey = key;
+    await loadAllKeys();
+    document.getElementById('search-input').value = `${date}  |  ${name}`;
+    document.getElementById('s-clear').style.display = 'block';
+    document.getElementById('s-icon').style.display  = 'none';
+    toast(`✅ 저장 완료 — ${date} / ${name}`);
+  } catch(e) {
+    toast('❌ 저장 실패. 인터넷 연결을 확인해주세요.', '#c83030');
+    console.error(e);
+  }
+  btn.disabled = false;
+  btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#fff"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V7l-4-4zm-5 16a3 3 0 110-6 3 3 0 010 6zm3-10H5V5h10v4z"/></svg>웹에 저장`;
+};
+
+window.deleteRecord = async function() {
+  if (!curKey) { toast('삭제할 기록을 먼저 선택해주세요.', '#c87030'); return; }
+  const rec = allKeys.find(r => r.key === curKey);
+  if (!confirm(`[${rec?.date} / ${rec?.name}] 기록을 삭제할까요?`)) return;
+  try {
+    await deleteDoc(doc(db, COL, curKey));
+    await loadAllKeys();
+    curKey = '';
+    window.clearSearch();
+    toast('🗑 삭제되었습니다.', '#c83030');
+  } catch(e) {
+    toast('❌ 삭제 실패', '#c83030');
+  }
+};
+
+window.newCard = function() {
+  if (!confirm('현재 입력 내용을 지우고 새 카드를 시작할까요?')) return;
+  FIELDS.forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  RADIOS.forEach(name => document.querySelectorAll(`input[name="${name}"]`).forEach(r => r.checked=false));
+  const t = new Date();
+  document.getElementById('f-date').value =
+    `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  document.getElementById('f-manager').value = '김민주 부장';
+  curKey = '';
+  window.clearSearch();
+  window.selectType('recovery');
+  toast('새 상담카드를 시작합니다.');
+};
+
+// ═══════════════════════════════════════════
+//  PDF 저장
+// ═══════════════════════════════════════════
+window.savePdf = function() {
+  const btn  = document.getElementById('btn-pdf');
+  const date = document.getElementById('f-date').value || '날짜';
+  const name = document.getElementById('f-name').value || '상담카드';
+  btn.disabled = true; btn.textContent = '저장 중...';
+
+  html2pdf().set({
+    margin: 0, filename: `상담카드_${date}_${name}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 2, useCORS: true, logging: false,
+      onclone: doc => {
+        doc.querySelectorAll('input[type="text"],input[type="date"]').forEach(el => {
+          const s = doc.createElement('span');
+          s.textContent = el.value;
+          s.style.cssText = `display:block;width:100%;font-family:'Noto Sans KR',sans-serif;font-size:0.82rem;font-weight:600;color:${el.closest('.fee-inp')?'#cc1111':'#0d3399'};padding:2px 0;`;
+          el.parentNode.replaceChild(s, el);
+        });
+        doc.querySelectorAll('input[type="radio"]').forEach(el => {
+          const s = doc.createElement('span');
+          s.textContent = el.checked ? '☑' : '☐';
+          s.style.cssText = 'font-size:0.85rem;margin-right:2px;';
+          el.parentNode.replaceChild(s, el);
+        });
+        doc.querySelectorAll('textarea').forEach(el => {
+          const s = doc.createElement('span');
+          s.textContent = el.value;
+          s.style.cssText = `display:block;width:100%;font-family:'Noto Sans KR',sans-serif;font-size:0.82rem;font-weight:${el.closest('.fee-inp')?'700':'600'};color:${el.closest('.fee-inp')?'#cc1111':'#0d3399'};white-space:pre-wrap;line-height:1.6;`;
+          el.parentNode.replaceChild(s, el);
+        });
+        doc.querySelector('.print-bar').style.display = 'none';
+        doc.querySelector('.toolbar').style.display   = 'none';
+        doc.body.style.background = '#fff'; doc.body.style.padding = '0';
+        const card = doc.querySelector('.card');
+        if (card) { card.style.borderRadius='0'; card.style.boxShadow='none'; card.style.borderBottom='2px solid #2a6a3a'; }
+      }
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).from(document.querySelector('.page')).save().then(() => {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#fff"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/></svg>PDF 저장`;
+    toast('📄 PDF 저장 완료!');
+  });
+};
+</script>
+</body>
+</html>
