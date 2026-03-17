@@ -647,7 +647,7 @@ window.newCard = function() {
 };
 
 // ═══════════════════════════════════════════
-//  PDF 저장
+//  인쇄
 // ═══════════════════════════════════════════
 window.doPrint = function() {
   const toolbar   = document.querySelector('.toolbar');
@@ -662,6 +662,11 @@ window.doPrint = function() {
     }, 500);
   }, 100);
 };
+
+// ═══════════════════════════════════════════
+//  PDF 저장
+// ═══════════════════════════════════════════
+window.savePdf = function() {
   const btn  = document.getElementById('btn-pdf');
   const date = document.getElementById('f-date').value || '날짜';
   const name = document.getElementById('f-name').value || '상담카드';
