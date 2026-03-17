@@ -166,10 +166,13 @@ td { border: 1px solid #b0d0b8; vertical-align: middle; overflow: hidden; }
 
 @media print {
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-  body { background: #fff; padding: 0; }
+  body { background: #fff !important; padding: 0 !important; display: block !important; }
   .toolbar, .print-bar, .toast { display: none !important; }
-  .page { width: 100%; }
-  .card { border: 1.5px solid #2a6a3a; border-bottom: 1.5px solid #2a6a3a; border-radius: 0; box-shadow: none; }
+  .page { display: block !important; width: 100% !important; }
+  .card { display: block !important; border: 1.5px solid #2a6a3a; border-bottom: 1.5px solid #2a6a3a; border-radius: 0; box-shadow: none; }
+  table { display: table !important; }
+  tr { display: table-row !important; }
+  td { display: table-cell !important; }
   .card-title { background: #2a6a3a !important; color: #fff !important; }
   .type-btn { border-color: rgba(255,255,255,0.5) !important; color: rgba(255,255,255,0.5) !important; }
   .type-btn.selected { background: #fff !important; color: #2a6a3a !important; border-color: #fff !important; }
@@ -650,17 +653,7 @@ window.newCard = function() {
 //  인쇄
 // ═══════════════════════════════════════════
 window.doPrint = function() {
-  const toolbar   = document.querySelector('.toolbar');
-  const printBar  = document.querySelector('.print-bar');
-  toolbar.style.display  = 'none';
-  printBar.style.display = 'none';
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => {
-      toolbar.style.display  = '';
-      printBar.style.display = '';
-    }, 500);
-  }, 100);
+  window.print();
 };
 
 // ═══════════════════════════════════════════
