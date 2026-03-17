@@ -12,8 +12,14 @@ body {
   background: #d4e8d8;
   font-family: 'Noto Sans KR', sans-serif;
   min-height: 100vh;
-  display: flex; flex-direction: column; align-items: center;
+  margin: 0;
   padding: 28px 20px 52px;
+}
+
+.page-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ── 툴바 ── */
@@ -173,6 +179,7 @@ td { border: 1px solid #b0d0b8; vertical-align: middle; overflow: hidden; }
     display: block !important; 
     width: 100% !important;
   }
+  .page-wrap { display: block !important; }
   .toolbar, .print-bar, .toast { display: none !important; }
   .page { 
     display: block !important; 
@@ -215,6 +222,7 @@ td { border: 1px solid #b0d0b8; vertical-align: middle; overflow: hidden; }
 </head>
 <body>
 
+<div class="page-wrap">
 <!-- 툴바 -->
 <div class="toolbar">
   <span class="toolbar-title">📂 저장된 상담카드</span>
@@ -391,6 +399,7 @@ td { border: 1px solid #b0d0b8; vertical-align: middle; overflow: hidden; }
 </div>
 
 <div class="toast" id="toast"></div>
+</div><!-- /.page-wrap -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script type="module">
